@@ -1,7 +1,16 @@
 
-file(GLOB LIBTOY_INCLUDE_FILES "inc/*.hpp")
+set(LIBTOY_INCLUDE_FILES
+  inc/libtoy.hpp
+  inc/prerequisites.hpp
+  inc/exceptions.hpp
+  inc/imgutils.hpp
+  inc/texture2d.hpp
+  inc/visual-node.hpp
+)
+
 set(LIBTOY_SOURCE_FILES
   src/visual-node.cpp
+  src/texture2d.cpp
 )
 
 add_library(libtoy STATIC 
@@ -10,3 +19,4 @@ add_library(libtoy STATIC
 )
 
 target_include_directories(libtoy PUBLIC inc)
+target_include_directories(libtoy PUBLIC ${EIGEN_INCLUDE})

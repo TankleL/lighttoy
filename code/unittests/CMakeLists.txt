@@ -1,7 +1,7 @@
 include(CTest)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
+set(BUILD_GMOCK false)
 add_subdirectory(gtest)
 
 set(GTEST_INCLUDE gtest/GoogleTest/include)

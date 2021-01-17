@@ -10,7 +10,6 @@ set(LIBTOY_INCLUDE_FILES
 
 set(LIBTOY_SOURCE_FILES
   src/visual-node.cpp
-  src/texture2d.cpp
 )
 
 add_library(libtoy STATIC 

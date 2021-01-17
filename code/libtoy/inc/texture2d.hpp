@@ -4,76 +4,102 @@
 
 namespace libtoy
 {
+    /* **************************************************************
+     * DECLARATION
+    ************************************************************** */
+    template<class _PixelType>
     class Texture2D
     {
     public:
-        Texture2D(const resolution_t& resolution);
+        struct PixelResolver
+        {
+            friend Texture2D;
+        public:
+            _PixelType& operator[](int y);
+
+        private:
+            _PixelType* _base;
+            int _x;
+            int _width;
+        };
+
+    public:
+        Texture2D() = delete;
+        explicit Texture2D(const resolution_t& resolution);
+        Texture2D(const Texture2D& rhs);
+        Texture2D(Texture2D&& rhs) noexcept;
+        virtual ~Texture2D() noexcept;
+
+        Texture2D& operator=(const Texture2D& rhs);
+        Texture2D& operator=(Texture2D&& rhs) noexcept;
+
+    public:
+        PixelResolver operator[](int x);
 
     private:
         resolution_t _resolution;
-        uptr<pixel_rgb_t> _pixels;
+        uptr<_PixelType[]> _pixels;
     };
 
-    //public:
-    //    Texture2D(const Math::Resolution& resolution);
-    //    virtual ~Texture2D();
 
-    //public:
-    //    Math::Resolution get_resolution() const;
-    //    Math::Color get_pixel(int x, int y) const;
-    //    const Light::byte* get_buffer() const;
-    //    void set_pixel(int x, int y, const Math::Color& value);
-    //        
-    //protected:
-    //    Math::Resolution				m_resolution;
-    //    Light::byte*					m_p_pixels;		// R8G8B8 format, align = 1.
-    //};
+    /* **************************************************************
+     * DEFINITIONS
+    ************************************************************** */
+    template<class _PixelType>
+    inline Texture2D<_PixelType>::Texture2D(const resolution_t& resolution)
+        : _resolution(resolution)
+        , _pixels(std::make_unique<_PixelType[]>((resolution[0] * resolution[1])))
+    {}
 
-    //inline Texture2D::Texture2D(const Math::Resolution& resolution) :
-    //    m_resolution(resolution),
-    //    m_p_pixels(new Light::byte[resolution.get_width() * resolution.get_height() * 3])  // R8G8B8 format, align = 1.
-    //{}
+    template<class _PixelType>
+    inline Texture2D<_PixelType>::Texture2D(const Texture2D& rhs)
+        : _resolution(rhs._resolution)
+        , _pixels(std::make_unique<_PixelType>(rhs._pixels))
+    {}
 
-    //inline Texture2D::~Texture2D()
-    //{}
+    template<class _PixelType>
+    inline Texture2D<_PixelType>::Texture2D(Texture2D&& rhs) noexcept
+        : _resolution(std::move(rhs._resolution))
+        , _pixels(std::move(rhs._pixels))
+    {}
 
-    //inline Math::Resolution Texture2D::get_resolution() const
-    //{
-    //    return m_resolution;
-    //}
+    template<class _PixelType>
+    inline Texture2D<_PixelType>::~Texture2D() noexcept
+    {}
 
-    //inline Math::Color Texture2D::get_pixel(int x, int y) const
-    //{
-    //    assert(m_resolution.get_width() != 0 && m_resolution.get_height() != 0);
-    //    assert(x >= 0 && x <= m_resolution.get_width());
-    //    assert(y >= 0 && y <= m_resolution.get_height());
+    template<class _PixelType>
+    inline Texture2D<_PixelType>& Texture2D<_PixelType>::operator=(const Texture2D& rhs)
+    {
+        _resolution = rhs._resolution;
+        _pixels = std::make_unique<_PixelType>(rhs._pixels);
+        return *this;
+    }
 
-    //    Light::byte* p_pixel = m_p_pixels + (x + y * m_resolution.get_width()) * 3;
+    template<class _PixelType>
+    inline Texture2D<_PixelType>& Texture2D<_PixelType>::operator=(Texture2D&& rhs) noexcept
+    {
+        _resolution = std::move(rhs._resolution);
+        _pixels = std::move(rhs._pixels);
+        return *this;
+    }
 
-    //    Math::Color reval;
-    //    reval.m_r = ((Math::decimal)p_pixel[0]) / 255.0f;
-    //    reval.m_g = ((Math::decimal)p_pixel[1]) / 255.0f;
-    //    reval.m_b = ((Math::decimal)p_pixel[2]) / 255.0f;
+    template<class _PixelType>
+    inline typename Texture2D<_PixelType>::PixelResolver Texture2D<_PixelType>::operator[](int x)
+    {
+        PixelResolver resolver;
+        resolver._base = _pixels.get();
+        resolver._x = x;
+        resolver._width = _resolution[0];
+        return resolver;
+    }
 
-    //    return reval;
-    //}
+    template<class _PixelType>
+    inline _PixelType& Texture2D<_PixelType>::PixelResolver::operator[](int y)
+    {
+        _PixelType* pixel = _base + (_x + y * _width);
+        return *pixel;
+    }
 
-    //inline const Light::byte* Texture2D::get_buffer() const
-    //{
-    //    return m_p_pixels;
-    //}
-
-    //inline void Texture2D::set_pixel(int x, int y, const Math::Color& value)
-    //{
-    //    assert(m_resolution.get_width() != 0 && m_resolution.get_height() != 0);
-    //    assert(x >= 0 && x <= m_resolution.get_width());
-    //    assert(y >= 0 && y <= m_resolution.get_height());
-
-    //    Light::byte* p_pixel = m_p_pixels + (x + y * m_resolution.get_width()) * 3;
-    //    p_pixel[0] = value.m_r * 255;
-    //    p_pixel[1] = value.m_g * 255;
-    //    p_pixel[2] = value.m_b * 255;
-    //}
 }
 
 

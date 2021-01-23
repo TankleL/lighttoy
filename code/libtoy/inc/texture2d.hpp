@@ -15,7 +15,8 @@ namespace libtoy
         {
             friend Texture2D;
         public:
-            _PixelType& operator[](int y);
+            _PixelType& operator[](int y) noexcept;
+            _PixelType operator[](int y) const noexcept;
 
         private:
             _PixelType* _base;
@@ -34,7 +35,8 @@ namespace libtoy
         Texture2D& operator=(Texture2D&& rhs) noexcept;
 
     public:
-        PixelResolver operator[](int x);
+        PixelResolver operator[](int x) const noexcept;
+        resolution_t get_resolution() const noexcept;
 
     private:
         resolution_t _resolution;
@@ -84,7 +86,7 @@ namespace libtoy
     }
 
     template<class _PixelType>
-    inline typename Texture2D<_PixelType>::PixelResolver Texture2D<_PixelType>::operator[](int x)
+    inline typename Texture2D<_PixelType>::PixelResolver Texture2D<_PixelType>::operator[](int x) const noexcept
     {
         PixelResolver resolver;
         resolver._base = _pixels.get();
@@ -94,7 +96,20 @@ namespace libtoy
     }
 
     template<class _PixelType>
-    inline _PixelType& Texture2D<_PixelType>::PixelResolver::operator[](int y)
+    inline resolution_t Texture2D<_PixelType>::get_resolution() const noexcept
+    {
+        return _resolution;
+    }
+
+    template<class _PixelType>
+    inline _PixelType& Texture2D<_PixelType>::PixelResolver::operator[](int y) noexcept
+    {
+        _PixelType* pixel = _base + (_x + y * _width);
+        return *pixel;
+    }
+
+    template<class _PixelType>
+    inline _PixelType Texture2D<_PixelType>::PixelResolver::operator[](int y) const noexcept
     {
         _PixelType* pixel = _base + (_x + y * _width);
         return *pixel;
